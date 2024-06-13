@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resume Builder</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <!-- input container starts here -->
+    <section class="resume-builder">
+        <div class="container">
+            <h1>Resume Creator</h1>
+            <div class="resume_container">
+                <form class="inputField">
+                    <input type="text" name="name" placeholder="Your Name" title="Enter Your Name" />
+                    <input type="text" name="title" placeholder="Title/Sub Heading" title="Enter Title/Sub Heading" />
+                    <textarea name="work_experience" placeholder="Work Experience" cols="40" rows="3"
+                        title="Enter Your Work Experience"></textarea>
+                    <textarea name="academic_details" placeholder="Academic Details" cols="40" rows="3"
+                        title="Enter Your Academic Details"></textarea>
+                    <input type="text" placeholder="Objective" title="Enter Your Objective" name="objective" />
+                    <textarea name="skills" title="Enter Your Skills" placeholder="Skills" cols="40"
+                        rows="3"></textarea>
+                    <textarea name="projects" title="Enter Your Projects" placeholder="Projects" cols="40"
+                        rows="3"></textarea>
+                    <textarea name="achievements" placeholder="Achievements" cols="40" rows="3"
+                        title="Enter Your Achievements"></textarea>
+                    <textarea name="contact" placeholder="Contact Information" cols="40" rows="3"
+                        title="Enter Your Contact Information"></textarea>
+                </form>
+            </div>
+            <p class="credit">
+                Created by
+                <a href="www.google.com" target="_blank">
+                    resume-builder
+                </a>
+            </p>
+            <p class="tip">
+                **You can use markup in the text area for text decoration**
+            </p>
+        </div>
+    </section>
+    <!-- input container ends here -->
+
+    <!-- output container starts here -->
+    <div class="output_container" style="display: none;"></div>
+    <!-- output container ends here -->
+
+    <!-- preview button -->
+    <button onclick="toggleResume()">Generate / Edit</button>
+    <button onclick="saveResume()">Save Resume</button>
+    <button onclick="loadResume()">Load Resume</button>
+
+    <!-- script link here -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
+        // Taking elements from HTML
+        const inputField = document.querySelector(".inputField");
+        const main = document.querySelector(".resume-builder");
+        const outputContainer = document.querySelector(".output_container");
+    
+        function validateForm() {
+            const inputs = document.querySelectorAll('input, textarea');
+            let isValid = true;
+            inputs.forEach(input => {
+                if (!input.value) {
+                    isValid = false;
+                    input.style.borderColor = 'red';
+                } else {
+                    input.style.borderColor = '';
+                }
+            });
+            return isValid;
+        }
+    
+        let isHidden = true;
+    
+        // Function to toggle between input form and resume preview
+        function toggleResume() {
+            if (!validateForm()) {
+                alert("Please fill out all fields.");
+                return;
+            }
+            if (isHidden) {
+                // Hide the input form and show the resume preview
+                main.style.display = "none";
+                isHidden = false;
+    
+                outputContainer.style.display = "block";
+                outputContainer.innerHTML = `
+                    <div class="output">
+                        <div class="heading">
+                            <h1>${inputField.querySelector('[name="name"]').value}</h1>
+                            <h4>${inputField.querySelector('[name="title"]').value}</h4>
+                        </div>
+                        <div class="info">
+                            <div class="left">
+                                <div class="box">
+                                    <h2>Objective</h2>
+                                    <p>${inputField.querySelector('[name="objective"]').value}</p>
+                                </div>
+                                <div class="box">
+                                    <h2>Skills</h2>
+                                    <p>${inputField.querySelector('[name="skills"]').value}</p>
+                                </div>
+                                <div class="box">
+                                    <h2>Academic Details</h2>
+                                    <p>${inputField.querySelector('[name="academic_details"]').value}</p>
+                                </div>
+                                <div class="box">
+                                    <h2>Contact</h2>
+                                    <p>${inputField.querySelector('[name="contact"]').value}</p>
+                                </div>
+                            </div>
+                            <div class="right">
+                                <div class="box">
+                                    <h2>Work Experience</h2>
+                                    <p>${inputField.querySelector('[name="work_experience"]').value}</p>
+                                </div>
+                                <div class="box">
+                                    <h2>Achievements</h2>
+                                    <p>${inputField.querySelector('[name="achievements"]').value}</p>
+                                </div>
+                                <div class="box">
+                                    <h2>Projects</h2>
+                                    <p>${inputField.querySelector('[name="projects"]').value}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="print()">Print Resume</button>
+                `;
+            } else {
+                // Show the input form and hide the resume preview
+                main.style.display = "block";
+                isHidden = true;
+    
+                outputContainer.style.display = "none";
+                outputContainer.innerHTML = "";
+            }
+        }
+    
+        function saveResume() {
+            const resumeData = {
+                name: inputField.querySelector('[name="name"]').value,
+                title: inputField.querySelector('[name="title"]').value,
+                work_experience: inputField.querySelector('[name="work_experience"]').value,
+                academic_details: inputField.querySelector('[name="academic_details"]').value,
+                objective: inputField.querySelector('[name="objective"]').value,
+                skills: inputField.querySelector('[name="skills"]').value,
+                projects: inputField.querySelector('[name="projects"]').value,
+                achievements: inputField.querySelector('[name="achievements"]').value,
+                contact: inputField.querySelector('[name="contact"]').value
+            };
+            localStorage.setItem('resume', JSON.stringify(resumeData));
+        }
+    
+        function loadResume() {
+            const resumeData = JSON.parse(localStorage.getItem('resume'));
+            if (resumeData) {
+                inputField.querySelector('[name="name"]').value = resumeData.name;
+                inputField.querySelector('[name="title"]').value = resumeData.title;
+                inputField.querySelector('[name="work_experience"]').value = resumeData.work_experience;
+                inputField.querySelector('[name="academic_details"]').value = resumeData.academic_details;
+                inputField.querySelector('[name="objective"]').value = resumeData.objective;
+                inputField.querySelector('[name="skills"]').value = resumeData.skills;
+                inputField.querySelector('[name="projects"]').value = resumeData.projects;
+                inputField.querySelector('[name="achievements"]').value = resumeData.achievements;
+                inputField.querySelector('[name="contact"]').value = resumeData.contact;
+            } else {
+                alert('No saved resume found');
+            }
+        }
+        async function downloadResumeAsPDF() {
+        const { jsPDF } = window.jspdf;
+
+        const resumeData = {
+            name: inputField.querySelector('[name="name"]').value,
+            title: inputField.querySelector('[name="title"]').value,
+            work_experience: inputField.querySelector('[name="work_experience"]').value,
+            academic_details: inputField.querySelector('[name="academic_details"]').value,
+            objective: inputField.querySelector('[name="objective"]').value,
+            skills: inputField.querySelector('[name="skills"]').value,
+            projects: inputField.querySelector('[name="projects"]').value,
+            achievements: inputField.querySelector('[name="achievements"]').value,
+            contact: inputField.querySelector('[name="contact"]').value
+        };
+
+        const doc = new jsPDF();
+
+        doc.text(`Name: ${resumeData.name}`, 10, 10);
+        doc.text(`Title: ${resumeData.title}`, 10, 20);
+        doc.text(`Objective: ${resumeData.objective}`, 10, 30);
+        doc.text(`Skills: ${resumeData.skills}`, 10, 40);
+        doc.text(`Work Experience: ${resumeData.work_experience}`, 10, 50);
+        doc.text(`Academic Details: ${resumeData.academic_details}`, 10, 60);
+        doc.text(`Achievements: ${resumeData.achievements}`, 10, 70);
+        doc.text(`Projects: ${resumeData.projects}`, 10, 80);
+        doc.text(`Contact: ${resumeData.contact}`, 10, 90);
+
+        doc.save('resume.pdf');
+    }
+    </script>
+    <button onclick="downloadResumeAsPDF()">Download Resume as PDF</button>
+</body>
+
+</html>
